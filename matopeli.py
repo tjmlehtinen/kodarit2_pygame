@@ -16,7 +16,8 @@ pygame.display.set_caption("MATOPELI 2026")
 # määritellään värejä
 taustavari = pygame.Color(33, 33, 0)
 ruutuvari = pygame.Color(133, 133, 0)
-matovari = pygame.Color(33, 133, 33)
+matovari = pygame.Color(33, 233, 33)
+ruokavari = pygame.Color(233, 33, 33)
 
 # pelikenttä koostuu ruuduista, joita piirretään seuraavalla metodilla
 def piirra_ruutu(x, y, vari):
@@ -31,6 +32,21 @@ def piirra_tausta():
         for y in range(KORKEUS):
             piirra_ruutu(x, y, ruutuvari)
 
+# eri suunnat lukupareina
+OIKEA = (1, 0)
+VASEN = (-1, 0)
+ALAS = (0, 1)
+YLOS = (0, -1)
+
+suunta = OIKEA
+
+# ruokaan liittyvät
+ruoka = (5, 5)
+
+def piirra_ruoka():
+    x, y = ruoka
+    piirra_ruutu(x, y, ruokavari)
+
 # määritellään mato
 mato = [(0, 0), (1, 0), (2, 0), (3, 0)]
 
@@ -41,8 +57,13 @@ def piirra_mato():
 
 def liikuta_matoa():
     paa_x, paa_y = mato[-1]
-    uusi_paa = (paa_x + 1, paa_y)
+    suunta_x, suunta_y = suunta
+    uusi_paa = (paa_x + suunta_x, paa_y + suunta_y)
     mato.append(uusi_paa)
+    if uusi_paa == ruoka:
+        pass
+    else:
+        mato.pop(0)
 
 kello = pygame.time.Clock()
 
@@ -57,8 +78,23 @@ while True:
             # suljetaan pygame ja lopetetaan ohjelma
             pygame.quit()
             sys.exit()
+        # onko tapahtuma näppäimen painaminen
+        if tapahtuma.type == pygame.KEYDOWN:
+            # onko näppäin nuoli alas
+            if tapahtuma.key == pygame.K_DOWN:
+                suunta = ALAS
+            # onko näppäin nuoli ylös
+            if tapahtuma.key == pygame.K_UP:
+                suunta = YLOS
+            # onko näppäin nuoli oikealle
+            if tapahtuma.key == pygame.K_RIGHT:
+                suunta = OIKEA
+            # onko näppäin nuoli vasemmalle
+            if tapahtuma.key == pygame.K_LEFT:
+                suunta = VASEN
     piirra_tausta()
     piirra_mato()
+    piirra_ruoka()
     # päivitetään näyttö
     pygame.display.update()
     # pelin päivitys
