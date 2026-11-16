@@ -1,6 +1,7 @@
 # ladataan tarvittavat kirjastot
 import pygame
 import sys
+import random
 
 # alustetaan pygame
 pygame.init()
@@ -40,15 +41,24 @@ YLOS = (0, -1)
 
 suunta = OIKEA
 
+# määritellään mato
+mato = [(0, 0), (1, 0), (2, 0), (3, 0)]
+
 # ruokaan liittyvät
-ruoka = (5, 5)
+def sijainti_ruoalle():
+    x = random.randrange(LEVEYS)
+    y = random.randrange(KORKEUS)
+    sijainti = (x, y)
+    if not sijainti in mato:
+        return sijainti
+    else:
+        return sijainti_ruoalle()
+
+ruoka = sijainti_ruoalle()
 
 def piirra_ruoka():
     x, y = ruoka
     piirra_ruutu(x, y, ruokavari)
-
-# määritellään mato
-mato = [(0, 0), (1, 0), (2, 0), (3, 0)]
 
 def piirra_mato():
     for sijainti in mato:
@@ -56,14 +66,27 @@ def piirra_mato():
         piirra_ruutu(x, y, matovari)
 
 def liikuta_matoa():
+    global ruoka
     paa_x, paa_y = mato[-1]
     suunta_x, suunta_y = suunta
     uusi_paa = (paa_x + suunta_x, paa_y + suunta_y)
+    if uusi_paa in mato:
+        print("Mato törmäsi itseensä :(")
+        game_over()
+    uusi_paa_x, uusi_paa_y = uusi_paa
+    if not uusi_paa_x in range(LEVEYS):
+        print("Mato meni yli reunan :(")
+        game_over()
     mato.append(uusi_paa)
     if uusi_paa == ruoka:
-        pass
+        ruoka = sijainti_ruoalle()
     else:
         mato.pop(0)
+
+def game_over():
+    print("Madon pituus: " + str(len(mato)))
+    pygame.quit()
+    sys.exit()
 
 kello = pygame.time.Clock()
 
