@@ -33,6 +33,11 @@ def piirra_tausta():
         for y in range(KORKEUS):
             piirra_ruutu(x, y, ruutuvari)
 
+# funktio, joka kertoo onko sijainti peliruudukon sisällä
+def on_peliruudukossa(sijainti):
+    x, y = sijainti
+    return 0 <= x and x < LEVEYS and 0 <= y and y < KORKEUS
+
 # eri suunnat lukupareina
 OIKEA = (1, 0)
 VASEN = (-1, 0)
@@ -73,8 +78,7 @@ def liikuta_matoa():
     if uusi_paa in mato:
         print("Mato törmäsi itseensä :(")
         game_over()
-    uusi_paa_x, uusi_paa_y = uusi_paa
-    if not uusi_paa_x in range(LEVEYS):
+    if not on_peliruudukossa(uusi_paa):
         print("Mato meni yli reunan :(")
         game_over()
     mato.append(uusi_paa)
@@ -83,10 +87,22 @@ def liikuta_matoa():
     else:
         mato.pop(0)
 
+# määritellään fontit game over -ruutua varten
+game_over_fontti = pygame.font.SysFont("cambria", 60)
+game_over_teksti = game_over_fontti.render("GAME OVER", True, (255, 0, 0))
+
 def game_over():
     print("Madon pituus: " + str(len(mato)))
-    pygame.quit()
-    sys.exit()
+    while True:
+        # käydään läpi tapahtumat
+        for tapahtuma in pygame.event.get():
+            # onko tapahtuma ikkunan sulkeminen
+            if tapahtuma.type == pygame.QUIT:
+                # suljetaan pygame ja lopetetaan ohjelma
+                pygame.quit()
+                sys.exit()
+        NAYTTO.blit(game_over_teksti, (50,100))
+        pygame.display.update()
 
 kello = pygame.time.Clock()
 
